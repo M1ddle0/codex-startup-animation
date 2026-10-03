@@ -88,7 +88,7 @@
     const ink=texture.getContext('2d');ink.imageSmoothingEnabled=false;
     const avatar=rect($('.avatar')),radar=rect($('.radar')),border=rect($('.avatar-frame'));
     const cx=radar.x+radar.w/2,cy=radar.y+radar.h/2;
-    ink.strokeStyle='#a397a0';ink.lineWidth=1.3;
+    ink.strokeStyle='#a8d8f5';ink.lineWidth=1.3;
     ink.beginPath();ink.arc(cx,cy,radar.w*.4425,0,Math.PI*2);ink.stroke();
     ink.setLineDash([9,12]);ink.globalAlpha=.4;
     ink.beginPath();ink.arc(cx,cy,radar.w*.3775,0,Math.PI*2);ink.stroke();ink.setLineDash([]);ink.globalAlpha=.8;
@@ -112,7 +112,7 @@
       ink.fillText(node.textContent,r.x+r.w/2,r.y+r.h/2,r.w);
     }
     ink.globalAlpha=1;
-    ink.globalCompositeOperation='source-atop';ink.globalAlpha=.24;ink.fillStyle='#9b9099';
+    ink.globalCompositeOperation='source-atop';ink.globalAlpha=.32;ink.fillStyle='#b5ddf5';
     ink.fillRect(0,0,1536,1024);ink.globalAlpha=1;ink.globalCompositeOperation='source-over';
     // Geometric tile selection works for file:// images too, without reading protected pixels.
     const tile=36,boxes=[avatar,border,...textBounds];
@@ -150,7 +150,7 @@
     const stamp=p===1?1:p+drift*.00001;
     if(stamp===lastTrace)return;lastTrace=stamp;
     ctx.clearRect(0,0,1536,1024);
-    ctx.strokeStyle='#c8c0cd';ctx.lineWidth=1.25;ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle='#b5ddf5';ctx.lineWidth=1.25;ctx.lineCap='round';ctx.lineJoin='round';
     if(p===1){
       ctx.globalAlpha=1;paths.forEach(path=>ctx.stroke(path.full));
     }else{

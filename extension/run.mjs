@@ -18,12 +18,26 @@ export async function verifyListener(port,bundle){
   const pids=[...records.matchAll(/^p(\d+)$/gm)].map(match=>Number(match[1]));
   const addresses=[...records.matchAll(/^n(.+)$/gm)].map(match=>match[1]);
   if(!pids.length||!addresses.length||addresses.some(value=>value!==`127.0.0.1:${port}`))throw new Error('调试端口没有严格限定在 127.0.0.1，停止连接');
+  const verified=new Set(),inherited=[];
   for(const pid of new Set(pids)){
     const uid=Number(await command('/bin/ps',['-p',String(pid),'-o','uid=']));
     if(uid!==process.getuid())throw new Error('端口所属用户不匹配');
     const files=await command('/usr/sbin/lsof',['-a','-p',String(pid),'-d','txt','-Fn']);
     const executable=files.split('\n').find(line=>line.startsWith('n'))?.slice(1);
-    if(!executable||!(await realpath(executable)).startsWith(bundle+sep))throw new Error('调试端口不属于目标 Codex 应用');
+    if(!executable)throw new Error('无法验证调试端口进程');
+    if((await realpath(executable)).startsWith(bundle+sep)){verified.add(pid);continue;}
+    // Current Codex also passes the listening descriptor to its signed CUA helper.
+    const helper=join(process.env.HOME,'.codex/computer-use/Codex Computer Use.app');
+    if(await realpath(executable)!==join(helper,'Contents/MacOS/SkyComputerUseService'))throw new Error('调试端口不属于目标 Codex 应用');
+    await command('/usr/bin/codesign',['--verify','--deep','--strict',helper]);
+    const {stderr:signature}=await exec('/usr/bin/codesign',['-dv','--verbose=4',helper],{timeout:15000});
+    if(!signature.includes('TeamIdentifier=2DC432GLL2')||!signature.includes('Identifier=com.openai.sky.CUAService\n'))throw new Error('辅助进程签名不匹配');
+    inherited.push(pid);
+  }
+  if(!verified.size)throw new Error('缺少官方应用监听进程');
+  for(const pid of inherited){
+    const parent=Number(await command('/bin/ps',['-p',String(pid),'-o','ppid=']));
+    if(!verified.has(parent))throw new Error('辅助进程不是官方应用的子进程');
   }
 }
 async function main(){
