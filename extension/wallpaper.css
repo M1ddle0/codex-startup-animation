@@ -13,7 +13,7 @@ html[data-aemeath-skin]{
   --color-surface-secondary:transparent!important;
   --color-surface-tertiary:rgb(var(--aemeath-base)/.32)!important;
   --chat-background-color:transparent!important;
-  --composer-background-color:rgb(var(--aemeath-base)/.68)!important;
+  --composer-background-color:rgb(var(--aemeath-base)/.88)!important;
   --app-shell-panel-background:transparent!important;
   --app-shell-tab-background:rgb(var(--aemeath-base)/.32)!important;
   background:rgb(var(--aemeath-base))!important;
@@ -26,5 +26,5 @@ html[data-aemeath-skin] body{
   background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;background-attachment:fixed!important;
 }
 html[data-aemeath-skin] :is(#root,[data-app-shell-frame],[data-app-shell-page-surface=true]){background:transparent!important}
-html[data-aemeath-skin] .app-shell-left-panel{background:rgb(var(--aemeath-base)/.18)!important}
+html[data-aemeath-skin] .app-shell-left-panel{background:rgb(var(--aemeath-base)/.42)!important}
 /* Menus, dialogs and floating panels keep their original opaque theme tokens. */

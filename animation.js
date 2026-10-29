@@ -5,6 +5,8 @@
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const native = !window.AEMEATH_EXTERNAL && Boolean(window.webkit?.messageHandlers?.launcher);
   const embedded = window.parent!==window && (window.AEMEATH_EXTERNAL || new URLSearchParams(location.search).has('embedded'));
+  // Keep the full timeline in preview; compress only the integrated startup.
+  const playbackRate = window.AEMEATH_EXTERNAL ? 3 : 1;
   const assets=window.AEMEATH_ASSETS||{artwork:'assets/artwork.jpg',avatar:'assets/avatar.jpg'};
   if(embedded)document.body.classList.add('embedded');
   const root = $('.window'), art = $('.artwork'), scene = $('.scene');
@@ -256,7 +258,7 @@
   }
   function tick(now) {
     if(!playing)return;
-    elapsed=Math.min(duration,now-origin); render(elapsed);
+    elapsed=Math.min(duration,(now-origin)*playbackRate); render(elapsed);
     if(elapsed>=duration){finish();return;}
     frame=requestAnimationFrame(tick);
   }
@@ -272,12 +274,12 @@
     if(elapsed>=duration)elapsed=0;
     warmIdentityTexture();
     completed=false; root.classList.remove('finished'); root.dataset.completed='false';
-    pause.disabled=false; origin=performance.now()-elapsed; playing=true;updateButton();
+    pause.disabled=false; origin=performance.now()-elapsed/playbackRate; playing=true;updateButton();
     cancelAnimationFrame(frame);frame=requestAnimationFrame(tick);
   }
   function replay(){revealed=false;hiddenPause=false;stop();elapsed=0;lastUI=-Infinity;render(0);play();}
   $('#replay').addEventListener('click',replay);$('.replay-end').addEventListener('click',replay);
-  pause.addEventListener('click',()=>{hiddenPause=false;if(playing){elapsed=Math.min(duration,performance.now()-origin);stop();render(elapsed);}else play();});
+  pause.addEventListener('click',()=>{hiddenPause=false;if(playing){elapsed=Math.min(duration,(performance.now()-origin)*playbackRate);stop();render(elapsed);}else play();});
   $('.skip').addEventListener('click',()=>finish(true));
   slider.addEventListener('input',()=>{hiddenPause=false;stop();elapsed=Number(slider.value)*1000;warmIdentityTexture();if(elapsed>=duration){finish();return;}lastUI=-Infinity;completed=false;root.classList.remove('finished');root.dataset.completed='false';pause.disabled=false;render(elapsed);});
   window.addEventListener('keydown',event=>{
@@ -290,7 +292,7 @@
   });
   document.addEventListener('visibilitychange',()=>{
     if(native)return;
-    if(document.hidden&&playing){elapsed=Math.min(duration,performance.now()-origin);hiddenPause=true;stop();}
+    if(document.hidden&&playing){elapsed=Math.min(duration,(performance.now()-origin)*playbackRate);hiddenPause=true;stop();}
     else if(!document.hidden&&hiddenPause&&!completed){hiddenPause=false;play();}
   });
   // Narrow native bridge: the host may select launch mode or report its own launch error.
